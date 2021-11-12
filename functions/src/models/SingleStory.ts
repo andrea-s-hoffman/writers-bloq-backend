@@ -4,6 +4,7 @@ interface CommentModel {
     comment: string,
     date: string
 }
+// testing
 
 export default interface SingleStory {
     uid?: string;
