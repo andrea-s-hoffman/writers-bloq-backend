@@ -1,10 +1,20 @@
+interface CommentModel {
+    cm_author: string,
+    cm_displayName: string,
+    comment: string,
+    date: string
+}
+
 export default interface SingleStory {
-    // _id?: string,
-    uid?: string,
-    title: string,
-    story: string,
-    date: string,
-    favorite: boolean,
-    public: boolean,
-    dateNum: number,
+    uid?: string;
+    author?: string;
+    title: string;
+    date: string;
+    dateNum: number;
+    story: string;
+    favorite: boolean;
+    upvotes: number;
+    comments?: CommentModel[];
+    public: boolean;
+    displayName?: string;
 }
