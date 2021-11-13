@@ -10,6 +10,25 @@ const catchError = (err: any, res: any) => {
     res.status(500).json({ message: "internal server error" });
 };
 
+storiesRouter.get("/all", async (req, res) => {
+    try {
+        const client = await getClient();
+        const results = client.db().collection<SingleStory>("stories").find()
+        res.json(await results.toArray());
+    } catch (err) {
+        catchError(err, res)
+    }
+})
+storiesRouter.get("/public/true", async (req, res) => {
+    try {
+        const client = await getClient();
+        const results = client.db().collection<SingleStory>("stories").aggregate([{ $match: { public: true } }])
+        res.json(await results.toArray());
+    } catch (err) {
+        catchError(err, res)
+    }
+})
+
 storiesRouter.get("/:uid", async (req, res) => {
     const uid = req.params.uid;
     try {
@@ -20,6 +39,8 @@ storiesRouter.get("/:uid", async (req, res) => {
         catchError(err, res)
     }
 })
+
+
 
 storiesRouter.post("/", async (req, res) => {
     const newStory: SingleStory = req.body;
