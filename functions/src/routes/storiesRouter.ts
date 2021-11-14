@@ -10,7 +10,7 @@ const catchError = (err: any, res: any) => {
     res.status(500).json({ message: "internal server error" });
 };
 
-storiesRouter.get("/all", async (req, res) => {
+storiesRouter.get("/", async (req, res) => {
     try {
         const client = await getClient();
         const results = client.db().collection<SingleStory>("stories").find()
@@ -19,28 +19,6 @@ storiesRouter.get("/all", async (req, res) => {
         catchError(err, res)
     }
 })
-storiesRouter.get("/public/true", async (req, res) => {
-    try {
-        const client = await getClient();
-        const results = client.db().collection<SingleStory>("stories").aggregate([{ $match: { public: true } }])
-        res.json(await results.toArray());
-    } catch (err) {
-        catchError(err, res)
-    }
-})
-
-storiesRouter.get("/:uid", async (req, res) => {
-    const uid = req.params.uid;
-    try {
-        const client = await getClient();
-        const results = client.db().collection<SingleStory>("stories").aggregate([{ $match: { uid: uid } }])
-        res.json(await results.toArray());
-    } catch (err) {
-        catchError(err, res)
-    }
-})
-
-
 
 storiesRouter.post("/", async (req, res) => {
     const newStory: SingleStory = req.body;
@@ -80,6 +58,38 @@ storiesRouter.put("/privacy/:id", async (req, res) => {
         }
         await client.db().collection<SingleStory>("stories").updateOne({ _id: new ObjectId(id) }, { $set: { public: setPrivacy } })
         res.json(story)
+    } catch (err) {
+        catchError(err, res)
+    }
+})
+
+storiesRouter.put("/upvotes/up/:id", async (req, res) => {
+    const id: string = req.params.id;
+    try {
+        const client = await getClient();
+        await client.db().collection<SingleStory>("stories").updateOne({ _id: new ObjectId(id) }, { $inc: { upvotes: 1 } })
+    } catch (err) {
+        catchError(err, res)
+    }
+})
+storiesRouter.put("/upvotes/down/:id", async (req, res) => {
+    const id: string = req.params.id;
+    try {
+        const client = await getClient();
+        await client.db().collection<SingleStory>("stories").updateOne({ _id: new ObjectId(id) }, { $inc: { upvotes: -1 } })
+    } catch (err) {
+        catchError(err, res)
+    }
+})
+
+storiesRouter.post("/comment/:id", async (req, res) => {
+    const id: string = req.params.id;
+    const comment: any = req.body;
+    try {
+        const client = await getClient();
+        await client.db().collection<SingleStory>("stories").
+            updateOne({ _id: new ObjectId(id) }, { $push: { comments: comment } })
+
     } catch (err) {
         catchError(err, res)
     }
