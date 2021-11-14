@@ -68,6 +68,7 @@ storiesRouter.put("/upvotes/up/:id", async (req, res) => {
     try {
         const client = await getClient();
         await client.db().collection<SingleStory>("stories").updateOne({ _id: new ObjectId(id) }, { $inc: { upvotes: 1 } })
+        res.sendStatus(201)
     } catch (err) {
         catchError(err, res)
     }
@@ -77,6 +78,8 @@ storiesRouter.put("/upvotes/down/:id", async (req, res) => {
     try {
         const client = await getClient();
         await client.db().collection<SingleStory>("stories").updateOne({ _id: new ObjectId(id) }, { $inc: { upvotes: -1 } })
+        res.sendStatus(201)
+
     } catch (err) {
         catchError(err, res)
     }
@@ -89,7 +92,7 @@ storiesRouter.post("/comment/:id", async (req, res) => {
         const client = await getClient();
         await client.db().collection<SingleStory>("stories").
             updateOne({ _id: new ObjectId(id) }, { $push: { comments: comment } })
-
+        res.status(201).json(comment)
     } catch (err) {
         catchError(err, res)
     }
