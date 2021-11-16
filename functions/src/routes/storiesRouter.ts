@@ -34,30 +34,54 @@ storiesRouter.post("/", async (req, res) => {
 
 storiesRouter.put("/fav/:id", async (req, res) => {
     const id = req.params.id;
-    let setFav = false;
     try {
         const client = await getClient();
-        const story = await client.db().collection<SingleStory>("stories").findOne({ _id: new ObjectId(id) });
-        if (story?.favorite === false) {
-            setFav = true;
-        }
-        await client.db().collection<SingleStory>("stories").updateOne({ _id: new ObjectId(id) }, { $set: { favorite: setFav } })
-        res.json(story)
+        await client.db().collection<SingleStory>("stories").updateOne(
+            { _id: new ObjectId(id) },
+            [
+                {
+                    $set: {
+                        favorite: {
+                            $switch: {
+                                branches: [
+                                    { case: { $eq: ["$favorite", true] }, then: false },
+                                    { case: { $eq: ["$favorite", false] }, then: true }
+                                ],
+                                default: ""
+                            }
+                        }
+                    }
+                }
+            ]
+        )
+        res.sendStatus(201)
     } catch (err) {
         catchError(err, res)
     }
 })
 storiesRouter.put("/privacy/:id", async (req, res) => {
     const id = req.params.id;
-    let setPrivacy = false;
     try {
         const client = await getClient();
-        const story = await client.db().collection<SingleStory>("stories").findOne({ _id: new ObjectId(id) });
-        if (story?.public === false) {
-            setPrivacy = true;
-        }
-        await client.db().collection<SingleStory>("stories").updateOne({ _id: new ObjectId(id) }, { $set: { public: setPrivacy } })
-        res.json(story)
+        await client.db().collection<SingleStory>("stories").updateOne(
+            { _id: new ObjectId(id) },
+            [
+                {
+                    $set: {
+                        public: {
+                            $switch: {
+                                branches: [
+                                    { case: { $eq: ["$public", true] }, then: false },
+                                    { case: { $eq: ["$public", false] }, then: true }
+                                ],
+                                default: ""
+                            }
+                        }
+                    }
+                }
+            ]
+        )
+        res.sendStatus(201)
     } catch (err) {
         catchError(err, res)
     }
