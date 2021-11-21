@@ -87,22 +87,26 @@ storiesRouter.put("/privacy/:id", async (req, res) => {
     }
 })
 
-storiesRouter.put("/upvotes/up/:id", async (req, res) => {
+storiesRouter.post("/upvotes/up/:id", async (req, res) => {
     const id: string = req.params.id;
+    const user: any = req.body;
+    console.log(user.user);
+
     try {
         const client = await getClient();
-        await client.db().collection<SingleStory>("stories").updateOne({ _id: new ObjectId(id) }, { $inc: { upvotes: 1 } })
-        res.sendStatus(201)
+        await client.db().collection<SingleStory>("stories").updateOne({ _id: new ObjectId(id) }, { $push: { "upvotes.up": user.user } })
+        res.status(201).json(user)
     } catch (err) {
         catchError(err, res)
     }
 })
-storiesRouter.put("/upvotes/down/:id", async (req, res) => {
+storiesRouter.post("/upvotes/down/:id", async (req, res) => {
     const id: string = req.params.id;
+    const user: any = req.body;
     try {
         const client = await getClient();
-        await client.db().collection<SingleStory>("stories").updateOne({ _id: new ObjectId(id) }, { $inc: { upvotes: -1 } })
-        res.sendStatus(201)
+        await client.db().collection<SingleStory>("stories").updateOne({ _id: new ObjectId(id) }, { $push: { "upvotes.down": user.user } })
+        res.status(201).json(user)
 
     } catch (err) {
         catchError(err, res)

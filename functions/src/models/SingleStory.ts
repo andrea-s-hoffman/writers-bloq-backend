@@ -4,7 +4,11 @@ interface CommentModel {
     comment: string,
     date: string
 }
-// testing
+
+interface UpvoteModel {
+    up: string[];
+    down: string[];
+}
 
 export default interface SingleStory {
     uid?: string;
@@ -14,7 +18,7 @@ export default interface SingleStory {
     dateNum: number;
     story: string;
     favorite: boolean;
-    upvotes: number;
+    upvotes: UpvoteModel;
     comments?: CommentModel[];
     public: boolean;
     displayName?: string;
