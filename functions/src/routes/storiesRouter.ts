@@ -87,7 +87,7 @@ storiesRouter.put("/privacy/:id", async (req, res) => {
     }
 })
 
-storiesRouter.post("/upvotes/up/:id", async (req, res) => {
+storiesRouter.post("/upvotes/plus-up/:id", async (req, res) => {
     const id: string = req.params.id;
     const user: any = req.body;
     console.log(user.user);
@@ -100,12 +100,40 @@ storiesRouter.post("/upvotes/up/:id", async (req, res) => {
         catchError(err, res)
     }
 })
-storiesRouter.post("/upvotes/down/:id", async (req, res) => {
+storiesRouter.post("/upvotes/minus-up/:id", async (req, res) => {
+    const id: string = req.params.id;
+    const user: any = req.body;
+    console.log(user.user);
+
+    try {
+        const client = await getClient();
+        await client.db().collection<SingleStory>("stories").updateOne({ _id: new ObjectId(id) }, { $pull: { "upvotes.up": user.user } })
+        res.status(201).json(user)
+    } catch (err) {
+        catchError(err, res)
+    }
+})
+
+
+
+storiesRouter.post("/upvotes/plus-down/:id", async (req, res) => {
     const id: string = req.params.id;
     const user: any = req.body;
     try {
         const client = await getClient();
         await client.db().collection<SingleStory>("stories").updateOne({ _id: new ObjectId(id) }, { $push: { "upvotes.down": user.user } })
+        res.status(201).json(user)
+
+    } catch (err) {
+        catchError(err, res)
+    }
+})
+storiesRouter.post("/upvotes/minus-down/:id", async (req, res) => {
+    const id: string = req.params.id;
+    const user: any = req.body;
+    try {
+        const client = await getClient();
+        await client.db().collection<SingleStory>("stories").updateOne({ _id: new ObjectId(id) }, { $pull: { "upvotes.down": user.user } })
         res.status(201).json(user)
 
     } catch (err) {
